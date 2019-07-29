@@ -44,7 +44,7 @@ done
 sudo pip3 install httplib2 # may need to manually remove and then upgrade to fix a bug in httplib2 regarding verifying SSL certificates
 
 sudo pip3 install werkzeug
-sudo pip3 install hashlib
+#sudo pip3 install hashlib
 sudo pip3 install sklearn
 sudo pip3 install pykalman
 sudo pip3 install scikit-image
