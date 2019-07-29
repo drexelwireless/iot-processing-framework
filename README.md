@@ -14,7 +14,9 @@ You will have to use the same install method (such as
 `pip install --user <package-name>`.
 
 Packages: 
-See the Dockerfile in each subdirectory for deployment instructions; these can be executed manually for a local installation, or containerized using Docker.
+See the Dockerfile in each subdirectory for deployment instructions; these can be executed manually for a local installation, or containerized using Docker.  The deploy.sh script will handle the installation.
+
+On Cygwin, you may need to set `export MPLBACKEND=Qt4Agg` to use with matplotlib.
 
 This package assumes an installation of python3 and pip3.
 
