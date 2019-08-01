@@ -52,6 +52,8 @@ sudo pip3 install peakutils
 sudo pip3 install hmmlearn
 sudo pip3 install statsmodels 
 
+sudo pip3 install seaborn
+
 sudo pip3 install --upgrade pip
 sudo pip3 install --upgrade filterpy # this upgrades numpy / scipy stack
 
