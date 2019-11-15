@@ -154,10 +154,13 @@ class Sensor(object):
         rssis = dict()
         for row in body['data']:
             freeformjson = row['freeform']
-            freeform = json.loads(freeformjson)
+            freeform = json.loads(freeformjson, parse_int=False, parse_float=False)
+            
+            if not (type(freeform) is dict):
+                freeform = json.loads(freeform, parse_int=False, parse_float=False)
             
             for col in freeform:
-                row[col] = freeform[col]
+                row[col] = str(freeform[col])
                 
             # compute true doppler in Hz from doppler by converting from two's complement and dividing by 16 to get the 4 fractional bits on the right
             raw_doppler = int(row['doppler'])

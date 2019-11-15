@@ -153,10 +153,13 @@ def add_tags_to_tagarray(body, ta):
 
 def aggregate_by_channel(body):    
     for row in body['data']:
-        freeform = json.loads(row['freeform'])
-
+        freeform = json.loads(row['freeform'], parse_int=False, parse_float=False)
+            
+        if not (type(freeform) is dict):
+            freeform = json.loads(freeform, parse_int=False, parse_float=False)
+            
         for col in freeform:
-            row[col] = freeform[col]
+            row[col] = str(freeform[col])
         
         # Solve for moving_parts == gtag**2 * R (the return loss) / r**4 (the radius)
         prxLinear = 10**(float(row['rssi']) * 0.1) * 1.0 / 1000 # convert to Watts from dbm
