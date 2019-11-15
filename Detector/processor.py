@@ -190,7 +190,7 @@ class Processor(object):
             freeformjson = row['freeform']
             freeform = json.loads(freeformjson, parse_int=False, parse_float=False)
             
-            if not (type(freeform) is dict):
+            while not (type(freeform) is dict):
                 freeform = json.loads(freeform, parse_int=False, parse_float=False)
             
             for col in freeform:

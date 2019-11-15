@@ -155,7 +155,7 @@ def aggregate_by_channel(body):
     for row in body['data']:
         freeform = json.loads(row['freeform'], parse_int=False, parse_float=False)
             
-        if not (type(freeform) is dict):
+        while not (type(freeform) is dict):
             freeform = json.loads(freeform, parse_int=False, parse_float=False)
             
         for col in freeform:
