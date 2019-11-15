@@ -1,17 +1,10 @@
 #!/bin/bash
 
-if [[ -z `which python3` ]]
-then
-        alias python3="python"
-        alias pip3="pip"
-fi
-
 sudo apt-get update
 
 sudo apt-get -y install python3.6
 sudo apt-get -y install python-pip
 sudo apt-get -y install python3-pip
-sudo python3 -m pip uninstall pip && sudo apt install -y python3-pip --reinstall
 sudo apt-get -y install python-dev
 sudo apt-get -y install python3-dev
 pip3 --user install --upgrade pip
