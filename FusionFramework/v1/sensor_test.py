@@ -24,13 +24,11 @@ class TestSensor(Sensor):
         
         vals = []
         vals2 = []
-        vals3 = []
         times = []
         for i, row in rows.iterrows(): 
             print(row['relative_timestamp'], row['rssi_from_mean'])
             vals.append(float(row['prx_moving_parts_deoscillated']))
             vals2.append(float(row['prx_moving_parts']))
-            vals3.append(float(row['prx_filtered']))
             times.append(float(row['relative_timestamp']))
 
         ax1 = plt.subplot(211)
