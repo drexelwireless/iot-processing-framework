@@ -54,6 +54,8 @@ pip3 install --user --upgrade filterpy # this upgrades numpy / scipy stack
 sudo apt-get install libgsl0-dev
 #sudo apt-get install libgsl0ldbl
 
+sudo apt-get install tcl-dev tk-dev python-tk python3-tk
+
 pip3 install --user 2to3
 
 #sudo pip install git+https://github.com/ajmendez/PyMix.git
