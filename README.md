@@ -1,3 +1,5 @@
+[![v1.0 Release DOI, 5/5/2020](https://zenodo.org/badge/DOI/10.5281/zenodo.3786931.svg)](https://doi.org/10.5281/zenodo.3786931)
+
 # IoT Sensor Framework Processing and Visualization
 
 This software suite contains scripts to visualize and process signals from the Iot Sensor Framework.
