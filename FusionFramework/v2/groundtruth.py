@@ -4,9 +4,9 @@ import numpy as np
 import math
 import filterpy.kalman as kf
 
-class Fuser(object):
+class GroundTruth(object):
     def __init__(self):
         pass
         
-    def fuse(self):
+    def truth(self, time_sec):
         pass
