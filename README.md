@@ -1,4 +1,4 @@
-[![v1.0 Release DOI, 5/5/2020](https://zenodo.org/badge/DOI/10.5281/zenodo.3786931.svg)](https://doi.org/10.5281/zenodo.3786931)
+[![v1.1 Release DOI, 5/13/2020](https://zenodo.org/badge/DOI/10.5281/zenodo.3786930.svg)](https://doi.org/10.5281/zenodo.3786930)
 
 # IoT Sensor Framework Processing and Visualization
 
