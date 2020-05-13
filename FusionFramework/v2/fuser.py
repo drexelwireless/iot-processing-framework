@@ -8,5 +8,5 @@ class Fuser(object):
     def __init__(self):
         pass
         
-    def fuse(self):
+    def fuse(self, measures, gobackn):
         pass
