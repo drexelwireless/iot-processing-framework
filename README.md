@@ -26,11 +26,11 @@ This package assumes an installation of python3 and pip3.
 #### Visualizer
 Each tag and antenna 
 are plotted on the same graph and color coded.  The Visualizer is invoked on a running 
-server via \texttt{python3 visualizer.py}, with an optional \texttt{-i} parameter to 
+server via `python3 visualizer.py`, with an optional `-i` parameter to 
 specify ``simulated'' mode as described previously.
 
 #### Detector Processing Module
-The `Detector` `get\_data()` method
+The `Detector` `get_data()` method
 returns a dictionary structure containing the structure as shown
 in the Listing below.
 
@@ -62,7 +62,7 @@ The `process_loop()` function can access this data through its `self.df`
 Pandas Dataframe, maintained by the superclass `Processor`.  Here, the data can 
 be queried, processed, and visualized according to a selected algorithm.  The 
 `Processor` is invoked by calling 
-`python3 detector.py processor\_test.TestProcessor` 
+`python3 detector.py processor_test.TestProcessor` 
 (again with an optional `-i` parameter 
 for "simulated mode").  The `processor_test.TestProcessor` corresponds to the 
 name of the file and class to be invoked by the `Detector`: in this example,
@@ -72,7 +72,7 @@ are named according to a common format, such that
 `processor_some.py` contains a class called `SomeProcessor` (Note that only the first letter of the class name is capitalized along with the "P" in "Processor").
 
 #### Sensor Fusion Framework
-The `Measure` subclass requires implementing only one method: `process().  
+The `Measure` subclass requires implementing only one method: `process()`.  
 This method uses the same `self.df` Pandas DataFrame used by the `Processor`,
 and is populated by RESTful calls to the database server made automatically by the 
 superclass.  If a `Perturber` subclass is provided, it will be called by the 
