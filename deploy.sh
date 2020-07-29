@@ -63,7 +63,7 @@ sudo apt-get install 2to3
 pushd /tmp
 git clone https://github.com/ajmendez/PyMix.git
 touch PyMix/README.rst
-sed 's/from distutils.core import setup, Extension,DistutilsExecError/#from distutils.core import setup, Extension,DistutilsExecError\nfrom distutils.core import setup, Extension' PyMix/setup.py
+sed 's/from distutils.core import setup, Extension,DistutilsExecError/#from distutils.core import setup, Extension,DistutilsExecError\nfrom distutils.core import setup, Extension/g' PyMix/setup.py
 sed 's/numpypath =  prefix + "\/lib\/python" +pyvs + "\/site-packages\/numpy\/core\/include\/numpy"  # path to arrayobject.h/#numpypath =  prefix + "\/lib\/python" +pyvs + "\/site-packages\/numpy\/core\/include\/numpy"  # path to arrayobject.h\n    try:\n        import numpy\n        numpypath = os.path.join(numpy.get_include(), "numpy")\n    except ImportError:\n        raise ImportError("Unable to import Numpy, which is required by PyMix")\n/g' PyMix/setup.py
 sed -i 's/as =  alpha/dummy = alpha/g' PyMix/pymix/AminoAcidPropertyPrior.py
 pushd PyMix
