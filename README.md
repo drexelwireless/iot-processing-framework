@@ -8,7 +8,32 @@ This software suite contains scripts to visualize and process signals from the I
 visualizer will be run on the same machine (IP addresses in all shell scripts
 have been set to `localhost`).  The host, port, keys, and other parameters can be set when running the scripts in the instructions.  We also assume that the IoT Sensor Framework database is running.
 
-### Requirements
+## Installation Videos
+
+### iot-software-framework
+<iframe width="560" height="315" src="https://www.youtube.com/embed/NOFdUsx6Fuk" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+
+### iot-processing-framework
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KdaFo_KRPlE" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+
+### Running the Software
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wwc1o67mbcw" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
+
+## On Windows - Install VcXsrv or Another X Window Server
+You can download [VcXsrv here](https://sourceforge.net/projects/vcxsrv/).
+
+To forward X connections to your local computer, run `XLaunch` and export the following variable:
+
+`export DISPLAY=localhost:0.0`
+
+You might add this to your `.bashrc` file so that the variable is automatically set at login:
+
+`echo "export DISPLAY=localhost:0.0" >> ~/.bashrc`
+
+## Requirements
 The following software packages need to be installed before running these modules. 
 You will have to use the same install method (such as
 `pip install` or `easy_install`) listed here. Also, alternatives to using
@@ -22,14 +47,14 @@ On Cygwin, you may need to set `export MPLBACKEND=Qt4Agg` to use with matplotlib
 
 This package assumes an installation of python3 and pip3.
 
-### System Architecture
-#### Visualizer
+## System Architecture
+### Visualizer
 Each tag and antenna 
 are plotted on the same graph and color coded.  The Visualizer is invoked on a running 
 server via `python3 visualizer.py`, with an optional `-i` parameter to 
 specify ``simulated'' mode as described previously.
 
-#### Detector Processing Module
+### Detector Processing Module
 The `Detector` `get_data()` method
 returns a dictionary structure containing the structure as shown
 in the Listing below.
@@ -71,7 +96,7 @@ implemented in a file `processor_test.py`.  For consistency, all such modules
 are named according to a common format, such that
 `processor_some.py` contains a class called `SomeProcessor` (Note that only the first letter of the class name is capitalized along with the "P" in "Processor").
 
-#### Sensor Fusion Framework
+### Sensor Fusion Framework
 The `Measure` subclass requires implementing only one method: `process()`.  
 This method uses the same `self.df` Pandas DataFrame used by the `Processor`,
 and is populated by RESTful calls to the database server made automatically by the 
@@ -92,17 +117,17 @@ from this ground truth and the fused estimates.  Like the `Detector`, the
 `Fusion Framework` is invoked as follows:
 `python3 simulator.py sensor_fusion.FusionSensor`
 
-### Instructions (Running framework on localhost for testing/development)
+## Instructions (Running framework on localhost for testing/development)
 Start the following components in the order presented below.
 
-#### Create a processing module
+### Create a processing module
 * Create a module sensor_your.py with a class called YourSensor inside.
 * This class should extend the Sensor class
 * Implement a constructor that invokes the superclass constructor
 * Impmenent a `start(self,body)` method that passes the `body` argument to the superclass `start` method.
 * The v2 module should also create measure_your.py modules with YourMeasure classes inside (that extend the Measure class).  These should be instantiated in the sensor_your.py module for automated fusion.  Optionally create and add data perturbation modules and ground truth error measurement.
 
-#### Run a processing module
+### Run a processing module
 * Change into the `fusionframework_v1` directory (or `fusionframework_v2` or
 other processing unit as appropriate)
 * Run `./simulate.sh sensor_test.TestSensor` (replace with
@@ -110,7 +135,7 @@ other processing unit as appropriate)
 file)
 * The Fusion Framework is conducive for prototyping ML or DSP algorithms against a dataset running on the server.  For real-time deployment, use the Detector module.  Its execution is similar to the Fusion Framework.
 
-#### Visualization
+### Visualization
 * Change into the Visualizer subdirectory.
 * Execute the `./live.sh` (for real-time data collection) or `./simulate.sh` for offline visualization of an existing dataset.
 * To quit: in the directory running the visualizer, create a file called 'quit'.
