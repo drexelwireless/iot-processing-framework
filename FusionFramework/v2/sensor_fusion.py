@@ -54,9 +54,12 @@ class FusionSensor(Sensor):
                     threads.append(t)
                     t.start()
             
-                    # Wait for the measure threads to finish    
-                    for t in threads:
-                        t.join()
+                # Wait for the measure threads to finish    
+                for t in threads:
+                    t.join()
+                    
+                for m in self.measures:
+                    m.sqerror(self.groundtruth, self.iteration * self.iterationsize)
             else:
                 for m in self.measures:
                     m.process()
