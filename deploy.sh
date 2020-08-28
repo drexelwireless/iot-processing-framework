@@ -31,16 +31,30 @@ pip3 install --user filterpy
 
 #httplib2 default installation is incompatible with Python 3 when using SSL
 PKGDIRS=`python3 -c "import site; p=site.getsitepackages(); print('\n'.join(str(x) for x in p))"`
+USERSITE=`python3 -m site --user-site`
 for P in "$PKGDIRS"
 do
         find $P -iname '*httplib2*' -exec sudo mv '{}' /tmp \;
 done
+pushd $USERSITE 
+find $P -iname '*httplib2*' -exec sudo mv '{}' /tmp \;
+popd
+
 pip3 install --user httplib2 # may need to manually remove and then upgrade to fix a bug in httplib2 regarding verifying SSL certificates
+
+pip3 install --user adaptfilt
+# upgrade adaptfilt to python3
+for P in "$PKGDIRS"
+do
+        pushd $P/adaptfilt && 2to3 -w *.py && popd
+done
+pushd $USERSITE/adaptfilt && 2to3 -w *.py && popd
 
 pip3 install --user werkzeug
 #pip3 install --user hashlib
 pip3 install --user sklearn
 pip3 install --user pykalman
+pip3 install --user padasip
 pip3 install --user scikit-image
 pip3 install --user peakutils
 pip3 install --user hmmlearn
