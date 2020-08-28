@@ -303,7 +303,7 @@ class Sensor(object):
         self.df = self.append_data(self.df, body)
         self.log('setting time delta index')
         self.df['timedeltaindex'] = pd.to_timedelta(self.df['relative_timestamp'], unit='us')
-        self.log('setting index)')
+        self.log('setting index')
         self.df.set_index('timedeltaindex', inplace=True)
         self.log('sorting')
         self.df.sort_values(by='relative_timestamp', inplace=True)
