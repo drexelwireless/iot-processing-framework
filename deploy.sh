@@ -29,6 +29,9 @@ pip3 install --user python-dateutil
 pip3 install --user pandas
 pip3 install --user filterpy
 
+pip3 install --user 2to3
+sudo apt-get install 2to3
+
 #httplib2 default installation is incompatible with Python 3 when using SSL
 PKGDIRS=`python3 -c "import site; p=site.getsitepackages(); print('\n'.join(str(x) for x in p))"`
 USERSITE=`python3 -m site --user-site`
@@ -69,9 +72,6 @@ sudo apt-get install libgsl0-dev
 #sudo apt-get install libgsl0ldbl
 
 sudo apt-get install tcl-dev tk-dev python-tk python3-tk
-
-pip3 install --user 2to3
-sudo apt-get install 2to3
 
 #sudo pip install git+https://github.com/ajmendez/PyMix.git
 pushd /tmp
