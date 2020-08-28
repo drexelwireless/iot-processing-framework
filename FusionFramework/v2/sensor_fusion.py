@@ -66,17 +66,18 @@ class FusionSensor(Sensor):
                     m.sqerror(self.groundtruth, self.iteration * self.iterationsize)
             
             # Fuse
-            fusedmeasure = self.fuser.fuse(self.measures, self.fusiongobackn)
-            
-            if not (fusedmeasure is None):
-                self.estimates.append(fusedmeasure)
-                self.times.append(self.iteration * self.timescale * self.iterationsize)
-            
-                print(self.times[-1], self.estimates[-1]) 
+            if not (self.fuser is None):
+                fusedmeasure = self.fuser.fuse(self.measures, self.fusiongobackn)
+                
+                if not (fusedmeasure is None):
+                    self.estimates.append(fusedmeasure)
+                    self.times.append(self.iteration * self.timescale * self.iterationsize)
+                
+                    print(self.times[-1], self.estimates[-1]) 
 
-                if not (self.groundtruth is None):
-                    if self.groundtruth.truth(self.iteration * self.iterationsize) >= 0:
-                        self.sqerrvector.append((self.estimates[-1] - self.groundtruth.truth(self.iteration * self.iterationsize))**2)
+                    if not (self.groundtruth is None):
+                        if self.groundtruth.truth(self.iteration * self.iterationsize) >= 0:
+                            self.sqerrvector.append((self.estimates[-1] - self.groundtruth.truth(self.iteration * self.iterationsize))**2)
             
             self.iteration = self.iteration + 1 
 
