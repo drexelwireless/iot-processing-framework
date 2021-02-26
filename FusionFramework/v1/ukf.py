@@ -2,11 +2,15 @@ import numpy as np
 import scipy.linalg
 from copy import deepcopy
 from threading import Lock
+import matplotlib.pyplot as plt
+import math
+import random
 
-def compute_ukf(input_array, iterate_func):
+
+def compute_ukf(times, input_array, iterate_func):
     """
     Compute the UKF for given measurements and return the measurements back, run through the UKF.
-    :param input_array: a (num_measurements x num_states) array, each row a measurement at a time and each column a measure type
+    :param input_array: a (num_measurements x num_states) array, each row a measurement and each column a measure type
     :param iterate_func: the function modeling the environment, i.e. a Taylor series approx. of the input array
     :return a (num_measurements x num_states) output array of the measurements run through the filter 
     """
@@ -18,13 +22,17 @@ def compute_ukf(input_array, iterate_func):
     kappa = 3-num_states
     ukf = UKF(num_states, generic_error, init_state, generic_error, alpha, kappa, beta, iterate_func)
     output_array = np.copy(input_array)
+    last_time = 0
     for i in range(len(input_array)):
-        timestep = 1 # todo change?
         x_curr = input_array[i]
+        timestep = times[i] - last_time
+        last_time = times[i]
         ukf.predict(timestep)
+        # Do not include time in the actual update
         ukf.update(x_curr, generic_error)
         output_array[i] = ukf.get_state()
     return output_array
+
 
 class UKF:
     def __init__(self, num_states, process_noise, initial_state, initial_covar, alpha, k, beta, iterate_function):
@@ -86,14 +94,13 @@ class UKF:
     def update(self, data, r_matrix):
         """
         performs a measurement update
-        :param states: list of indices (zero-indexed) of which states were measured, that is, which are being updated
         :param data: list of the data corresponding to the values in states
         :param r_matrix: error matrix for the data, again corresponding to the values in states
         """
 
         self.lock.acquire()
 
-        num_states = len(states)
+        num_states = len(data)
 
         # create y, sigmas of just the states that are being updated
         y = self.sigmas
@@ -133,7 +140,7 @@ class UKF:
 
         self.lock.release()
 
-    def predict(self, timestep, inputs=[]):
+    def predict(self, timestep):
         """
         performs a prediction step
         :param timestep: float, amount of time since last prediction
@@ -141,7 +148,7 @@ class UKF:
 
         self.lock.acquire()
 
-        sigmas_out = np.array([self.iterate(x, timestep, inputs) for x in self.sigmas.T]).T
+        sigmas_out = np.array([self.iterate(x, timestep) for x in self.sigmas.T]).T
 
         x_out = np.zeros(self.n_dim)
 
@@ -211,3 +218,78 @@ class UKF:
             self.x = state
             self.p = covar
 
+def update_step(state, dt):
+    return state + dt*state[0]
+
+if __name__ == '__foomain__':
+    num_states = 2
+    num_measurements = 1000
+    timestep = 0.01
+    times = np.linspace(0, timestep * num_measurements, num=num_measurements)
+    points = np.ones((num_measurements, num_states))
+    I = 0
+    for i in range(1, num_measurements):
+        points[i, :] = update_step(points[i - 1, :], timestep)
+    print(points)
+    I = 0
+    noise = 200 * np.random.normal(0, 1, (num_measurements, num_states))
+    noise_cov = np.cov(noise.T)
+    noisy_points = points + noise
+    my_iterate_func = update_step
+    estimates = np.array(compute_ukf(times, noisy_points, my_iterate_func))
+    fig, ax = plt.subplots()
+    ax.plot(times, points[:, 0])
+    ax.plot(times, noisy_points[:, 0])
+    ax.plot(times, estimates[:, 0])
+    ax.grid()
+    plt.show()
+
+if __name__ == '__main__':
+    num_states = 2
+    num_measurements = 1000
+    timestep = 0.01
+    times = np.linspace(0, timestep*num_measurements, num=num_measurements)
+    points = np.ones((num_measurements, num_states))
+    for i in range(1, num_measurements):
+        points[i,:] = update_step(points[i-1,:], timestep)
+    print(points)
+    noise = 200*np.random.normal(0,1,(num_measurements, num_states))
+    noise_cov = np.cov(noise.T)
+    noisy_points = points + noise
+    initial_state = noisy_points[0]
+    initial_cov = np.diag(np.diag(np.cov(noisy_points.T)))
+    alpha = 0.04
+    k = 0
+    beta = 2
+    my_iterate_func = update_step
+    ukf = UKF(num_states, noise_cov, initial_state, initial_cov, alpha, k, beta, my_iterate_func)
+    estimates = [ukf.get_state()]
+    bad_diffs = [points[0] - initial_state]
+    diffs = [points[0] - ukf.get_state()]
+    for i in range(1, num_measurements):
+        measure = points[i]
+        nmeasure = noisy_points[i]
+        sensor_measure = noisy_points[i]
+        ukf.predict(timestep)
+        ukf.update(sensor_measure, noise_cov)
+        estimate = ukf.get_state()
+        estimates.append(estimate)
+        diff = measure - estimate
+        diffs.append(diff)
+        bdiff = measure - nmeasure
+        bad_diffs.append(bdiff)
+        print('True measure = ', str(measure))
+        print('Estimated measure = ', str(estimate))
+        print('Difference = ', str(diff))
+
+    estimates = np.array(estimates)
+    diffs = np.array(diffs)
+    bad_diffs = np.array(bad_diffs)
+    fig, ax = plt.subplots()
+    ax.plot(times, points[:,0])
+    ax.plot(times, noisy_points[:,0])
+    ax.plot(times, estimates[:,0])
+    ax.plot(times, diffs[:, 0])
+    ax.plot(times, bad_diffs[:, 0])
+    ax.grid()
+    plt.show()
