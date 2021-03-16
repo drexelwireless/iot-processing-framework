@@ -288,7 +288,7 @@ class Sensor(object):
                 
         return df
         
-    def add_data(self, body):
+    def add_data(self, body, filterfield=None, filtervalue=None):
         self.log('add_data')
         
         if not 'data' in body:
@@ -310,6 +310,9 @@ class Sensor(object):
         self.log('setting last max timestamp')
         last_max_relative_timestamp = self.max_relative_timestamp
         self.max_relative_timestamp = self.df['relative_timestamp'].max()
+        
+        if not (filterfield is None) and not (filtervalue is None):
+            self.df.drop(self.df[self.df[filterfield] != filtervalue].index, inplace = True)        
 
         self.df = self.setcolumn(self.df, 'antenna', float)
         self.df = self.setcolumn(self.df, 'channelindex', float)
@@ -333,5 +336,5 @@ class Sensor(object):
         self.df = self.fillna(self.df)
         
     # this is the method that you will override, but should include the method above
-    def start(self, body):
-        self.add_data(body)
+    def start(self, body, filterfield=None, filtervalue=None):
+        self.add_data(body, filterfield, filtervalue)
