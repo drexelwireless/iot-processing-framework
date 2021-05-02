@@ -5,7 +5,88 @@ from threading import Lock
 import matplotlib.pyplot as plt
 import math
 import random
+from numpy.random import *
 
+def create_uniform_particles(x_range, Z, N):
+    """
+    x_range range of values
+    Z number of measures per particle
+    N number of particles
+    """
+    particles = uniform(x_range[0], x_range[1], size=N*Z).reshape(N, Z)
+    return particles
+
+def create_gaussian_particles(mean, std, N):
+    """
+    mean and std of values
+    N number of particles
+    """
+    Z = len(mean)
+    particles = np.empty((N,Z))
+    for i in range(len(particles)):
+        for j in range(len(particles[i])):
+            particles[i,j] = mean[j] + (np.random.randn() * std[j,j])
+    return particles
+
+def predict(particles, u, std, iterate_func, dt=1.):
+    N = len(particles)
+    # update heading
+    for i in range(len(particles)):
+        particles[i] = iterate_func(particles[i], dt) # + randn(N) * std
+    return particles
+
+def update(particles, weights, u):
+    for i in range(len(particles)):
+        weights[i] *= np.linalg.norm(particles[i] - u)
+
+    weights += 1.e-300      # avoid round-off to zero
+    weights /= sum(weights) # normalize
+    print(weights)
+    return weights
+
+def estimate(particles, weights):
+    """returns mean and variance of the weighted particles"""
+
+    pos = particles
+    mean = np.average(pos, weights=weights, axis=0)
+    var  = np.average((pos - mean)**2, weights=weights, axis=0)
+    return mean, var
+
+def compute_ukf_particle_filter(times, input_array, iterate_func):
+    num_states = len(input_array[0])
+    init_state = np.zeros(num_states)
+    generic_error = np.eye(num_states)
+    alpha = .1
+    beta = 2.
+    kappa = 3 - num_states
+    output_array = np.copy(input_array)
+    last_time = 0
+    output_array = np.copy(input_array)
+    num_particles = 10
+    weights = np.ones(num_particles) / num_particles
+    # Generate particles
+    for i in range(len(input_array)):
+        # Every particle goes through UKF
+        ukf = UKF(num_states, generic_error, init_state, generic_error, alpha, kappa, beta, iterate_func)
+        x_curr = input_array[i]
+        timestep = times[i] - last_time
+        last_time = times[i]
+        ukf.predict(timestep)
+        # Do not include time in the actual update
+        ukf.update(x_curr, generic_error)
+        particle_state = ukf.get_state()
+        particle_covar = ukf.get_covar()
+        # TODO particle filter
+        # Change particles to resample
+        particles = create_gaussian_particles(particle_state, particle_covar, num_particles)
+        # UKF get weights
+        #particles = predict(particles, particle_state, particle_covar, iterate_func, timestep)
+        #weights = update(particles, weights, particle_state)
+        final_state, final_covariance = estimate(particles, weights)
+        # init state on next iteration is particles after resampling, once per particle
+        init_state = final_state
+        output_array[i] = final_state
+    return output_array
 
 def compute_ukf(times, input_array, iterate_func):
     """
@@ -221,7 +302,7 @@ class UKF:
 def update_step(state, dt):
     return state + dt*state[0]
 
-if __name__ == '__foomain__':
+if __name__ == '__main__':
     num_states = 2
     num_measurements = 1000
     timestep = 0.01
@@ -230,13 +311,12 @@ if __name__ == '__foomain__':
     I = 0
     for i in range(1, num_measurements):
         points[i, :] = update_step(points[i - 1, :], timestep)
-    print(points)
     I = 0
     noise = 200 * np.random.normal(0, 1, (num_measurements, num_states))
     noise_cov = np.cov(noise.T)
     noisy_points = points + noise
     my_iterate_func = update_step
-    estimates = np.array(compute_ukf(times, noisy_points, my_iterate_func))
+    estimates = np.array(compute_ukf_particle_filter(times, noisy_points, my_iterate_func))
     fig, ax = plt.subplots()
     ax.plot(times, points[:, 0])
     ax.plot(times, noisy_points[:, 0])
@@ -244,7 +324,7 @@ if __name__ == '__foomain__':
     ax.grid()
     plt.show()
 
-if __name__ == '__main__':
+if __name__ == '__foo__':
     num_states = 2
     num_measurements = 1000
     timestep = 0.01
@@ -252,7 +332,6 @@ if __name__ == '__main__':
     points = np.ones((num_measurements, num_states))
     for i in range(1, num_measurements):
         points[i,:] = update_step(points[i-1,:], timestep)
-    print(points)
     noise = 200*np.random.normal(0,1,(num_measurements, num_states))
     noise_cov = np.cov(noise.T)
     noisy_points = points + noise
@@ -278,9 +357,6 @@ if __name__ == '__main__':
         diffs.append(diff)
         bdiff = measure - nmeasure
         bad_diffs.append(bdiff)
-        print('True measure = ', str(measure))
-        print('Estimated measure = ', str(estimate))
-        print('Difference = ', str(diff))
 
     estimates = np.array(estimates)
     diffs = np.array(diffs)
