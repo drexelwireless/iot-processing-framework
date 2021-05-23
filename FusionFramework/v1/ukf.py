@@ -41,7 +41,6 @@ def update(particles, weights, u):
 
     weights += 1.e-300      # avoid round-off to zero
     weights /= sum(weights) # normalize
-    print(weights)
     return weights
 
 def estimate(particles, weights):
@@ -59,33 +58,41 @@ def compute_ukf_particle_filter(times, input_array, iterate_func):
     alpha = .1
     beta = 2.
     kappa = 3 - num_states
-    output_array = np.copy(input_array)
     last_time = 0
     output_array = np.copy(input_array)
     num_particles = 10
+    particles = create_gaussian_particles(init_state, generic_error, num_particles)
     weights = np.ones(num_particles) / num_particles
-    # Generate particles
+    # Create ukf filters
+    filters = []
+    for i in range(len(particles)):
+        filters.append(UKF(num_states, generic_error, particles[i], generic_error, alpha, kappa, beta, iterate_func))
+    # Run filter through inputs
     for i in range(len(input_array)):
-        # Every particle goes through UKF
-        ukf = UKF(num_states, generic_error, init_state, generic_error, alpha, kappa, beta, iterate_func)
         x_curr = input_array[i]
         timestep = times[i] - last_time
         last_time = times[i]
-        ukf.predict(timestep)
-        # Do not include time in the actual update
-        ukf.update(x_curr, generic_error)
-        particle_state = ukf.get_state()
-        particle_covar = ukf.get_covar()
-        # TODO particle filter
-        # Change particles to resample
-        particles = create_gaussian_particles(particle_state, particle_covar, num_particles)
-        # UKF get weights
-        #particles = predict(particles, particle_state, particle_covar, iterate_func, timestep)
-        #weights = update(particles, weights, particle_state)
-        final_state, final_covariance = estimate(particles, weights)
+        new_particles = []
+        # Every particle goes through UKF
+        for j in range(len(particles)):
+            ukf = filters[j]
+            ukf.predict(timestep)
+            ukf.update(x_curr, generic_error)
+            new_particles.append(ukf.get_state())
+            particle_covar = ukf.get_covar()
+        # Estimate
+        final_state, final_covariance = estimate(new_particles, weights)
+        # Todo resample
+        #particles = new_particles
+        particles = create_gaussian_particles(final_state, generic_error, num_particles)
+        # Normalize weights
+        weights = update(particles, weights, final_state)
+        for j in range(len(particles)):
+            filters[j].reset(particles[j], generic_error)
         # init state on next iteration is particles after resampling, once per particle
         init_state = final_state
-        output_array[i] = final_state
+        output_array[i] = init_state
+
     return output_array
 
 def compute_ukf(times, input_array, iterate_func):
@@ -302,7 +309,7 @@ class UKF:
 def update_step(state, dt):
     return state + dt*state[0]
 
-if __name__ == '__main__':
+if __name__ == '__foo__':
     num_states = 2
     num_measurements = 1000
     timestep = 0.01
@@ -324,7 +331,7 @@ if __name__ == '__main__':
     ax.grid()
     plt.show()
 
-if __name__ == '__foo__':
+if __name__ == '__main__':
     num_states = 2
     num_measurements = 1000
     timestep = 0.01
@@ -351,9 +358,9 @@ if __name__ == '__foo__':
         sensor_measure = noisy_points[i]
         ukf.predict(timestep)
         ukf.update(sensor_measure, noise_cov)
-        estimate = ukf.get_state()
-        estimates.append(estimate)
-        diff = measure - estimate
+        estimate_obj = ukf.get_state()
+        estimates.append(estimate_obj)
+        diff = measure - estimate_obj
         diffs.append(diff)
         bdiff = measure - nmeasure
         bad_diffs.append(bdiff)
@@ -362,10 +369,14 @@ if __name__ == '__foo__':
     diffs = np.array(diffs)
     bad_diffs = np.array(bad_diffs)
     fig, ax = plt.subplots()
+    estimates2 = np.array(compute_ukf_particle_filter(times, noisy_points, my_iterate_func))
+    print(estimates)
+    print(estimates2)
     ax.plot(times, points[:,0])
     ax.plot(times, noisy_points[:,0])
-    ax.plot(times, estimates[:,0])
-    ax.plot(times, diffs[:, 0])
-    ax.plot(times, bad_diffs[:, 0])
+    ax.plot(times, estimates[:,0], 'b')
+    ax.plot(times, estimates2[:,0], 'r')
+    #ax.plot(times, diffs[:, 0])
+    #ax.plot(times, bad_diffs[:, 0])
     ax.grid()
     plt.show()
