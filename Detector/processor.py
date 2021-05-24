@@ -327,6 +327,29 @@ class Processor(object):
         self.release_lock()
         
         return df
+
+    def set_columns(self, df):
+        self.df = self.setcolumn(self.df, 'antenna', float)
+        self.df = self.setcolumn(self.df, 'channelindex', float)
+        self.df = self.setcolumn(self.df, 'rssi', int)
+        self.df = self.setcolumn(self.df, 'epc96', str)
+        self.df = self.setcolumn(self.df, 'velocity_by_phase', float)
+        self.df = self.setcolumn(self.df, 'rssi_delta', float)
+        self.df = self.setcolumn(self.df, 'rssi_from_mean', float)
+        self.df = self.setcolumn(self.df, 'rssi_from_min', float)
+        self.df = self.setcolumn(self.df, 'doppler_channel', float)
+        self.df = self.setcolumn(self.df, 'phase_rads', float)     
+        self.df = self.setcolumn(self.df, 'doppler_by_phase', float)
+        self.df = self.setcolumn(self.df, 'velocity_by_doppler', float)
+        self.df = self.setcolumn(self.df, 'doppler_hz', float)
+        self.df = self.setcolumn(self.df, 'estimated_rssi', float)
+        self.df = self.setcolumn(self.df, 'prx_moving_parts', float)
+        self.df = self.setcolumn(self.df, 'prx_moving_parts_deoscillated', float)
+        self.df = self.setcolumn(self.df, 'estimated_prx_m_p_d', float)#ADDED by Rob 10-18-17
+        self.df = self.setcolumn(self.df, 'phase_cos_rads', float)
+        self.df = self.setcolumn(self.df, 'prx_filtered', float)
+
+        return self.df
         
     def add_data(self, body):
         self.log('add_data')
@@ -351,23 +374,6 @@ class Processor(object):
         last_max_relative_timestamp = self.max_relative_timestamp
         self.max_relative_timestamp = self.df['relative_timestamp'].max()
 
-        self.df = self.setcolumn(self.df, 'antenna', float)
-        self.df = self.setcolumn(self.df, 'channelindex', float)
-        self.df = self.setcolumn(self.df, 'rssi', int)
-        self.df = self.setcolumn(self.df, 'epc96', str)
-        self.df = self.setcolumn(self.df, 'velocity_by_phase', float)
-        self.df = self.setcolumn(self.df, 'rssi_delta', float)
-        self.df = self.setcolumn(self.df, 'rssi_from_mean', float)
-        self.df = self.setcolumn(self.df, 'rssi_from_min', float)
-        self.df = self.setcolumn(self.df, 'doppler_channel', float)
-        self.df = self.setcolumn(self.df, 'phase_rads', float)     
-        self.df = self.setcolumn(self.df, 'doppler_by_phase', float)
-        self.df = self.setcolumn(self.df, 'velocity_by_doppler', float)
-        self.df = self.setcolumn(self.df, 'doppler_hz', float)
-        self.df = self.setcolumn(self.df, 'estimated_rssi', float) 
-        self.df = self.setcolumn(self.df, 'prx_moving_parts', float)   
-        self.df = self.setcolumn(self.df, 'prx_moving_parts_deoscillated', float)  
-        self.df = self.setcolumn(self.df, 'phase_cos_rads', float)
-        self.df = self.setcolumn(self.df, 'estimated_prx_m_p_d', float)#ADDED by Rob 10-18-17
+        self.df = self.set_columns(self.df)
 
         self.df = self.fillna(self.df)
