@@ -291,7 +291,7 @@ class Sensor(object):
     def set_columns(self, df):
         self.df = self.setcolumn(self.df, 'antenna', float)
         self.df = self.setcolumn(self.df, 'channelindex', float)
-        self.df = self.setcolumn(self.df, 'rssi', int)
+        self.df = self.setcolumn(self.df, 'rssi', float)
         self.df = self.setcolumn(self.df, 'epc96', str)
         self.df = self.setcolumn(self.df, 'velocity_by_phase', float)
         self.df = self.setcolumn(self.df, 'rssi_delta', float)
