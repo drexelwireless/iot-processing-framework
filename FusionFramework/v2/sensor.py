@@ -163,7 +163,7 @@ class Sensor(object):
                 row[col] = str(freeform[col])
                 
             # compute true doppler in Hz from doppler by converting from two's complement and dividing by 16 to get the 4 fractional bits on the right
-            raw_doppler = int(row['doppler'])
+            raw_doppler = float(row['doppler'])
             if raw_doppler > 32767:
                 raw_doppler = raw_doppler - 65536
             else:
