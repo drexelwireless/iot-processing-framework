@@ -1,6 +1,5 @@
 import sys
 import getopt
-from httplib2 import Http
 import json
 import time
 import threading
@@ -10,6 +9,7 @@ import operator
 import datetime
 import math
 import numpy as np
+import requests
 
 cspeed = 2.99792458e8
 
@@ -38,14 +38,21 @@ def log(msg):
 def sendhttp(url, headerdict=dict(), bodydict=dict(), method='POST'):
     global certfile
 
-    if certfile != 'NONE':
-        http_obj = Http(ca_certs=certfile)
+    if certfile == 'NONE':
+        verifypath = False
     else:
-        http_obj = Http(disable_ssl_certificate_validation=True)
+        verifypath = certfile
 
-    resp, content = http_obj.request(uri=url, method=method, headers=headerdict, body=json.dumps(bodydict))
+    if method.lower() == 'get':
+        fun = requests.get
+    elif method.lower() == 'put':
+        fun = requests.put
+    elif method.lower() == 'post':
+        fun = requests.post
 
-    return resp, content
+    response = fun(url, verify = verifypath, data = json.dumps(bodydict), headers=headerdict)
+
+    return response, response.text
     
 def retrieve_since(timestamp):
     global db_password
