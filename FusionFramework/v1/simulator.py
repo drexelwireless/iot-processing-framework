@@ -1,6 +1,6 @@
 import sys
 import getopt
-from httplib2 import Http
+import requests
 import json
 import time
 import threading
