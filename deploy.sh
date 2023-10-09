@@ -22,7 +22,7 @@ pip3 install --user flask
 pip3 install --user numpy
 pip3 install --user scipy
 pip3 install --user pycurl --global-option="--with-openssl"
-pip3 install --user pycrypto
+pip3 install --user pycryptodome
 pip3 install --user python-dateutil
 
 # Packages needed by common ML/DSP systems that depend on the IOT Sensor Framework
