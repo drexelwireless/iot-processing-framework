@@ -28,6 +28,7 @@ certfile = 'NONE'
 simulate_real_time = False
 timescale = int(1e6)
 moviefile = None
+taglist = None
 
 def log(msg):
     global do_debug
@@ -97,7 +98,8 @@ def usage(server, db_password, certfile, timescale, simulate_real_time, moviefil
             '\t-t <timescale> - scale of interrogator time (i.e., 1 for 1 unit per second): default %s\n' \
             '\t-i - simulate real-time by going through the whole database contents from the beginning, instead of pulling from the end: default %s\n' \
             '\t-m <moviefile> - optionally output to a video file\n' \
-			'\t-d - Enable debugging: default %s\n' % (server, db_password, certfile, timescale, simulate_real_time, do_debug))
+			'\t-d - Enable debugging: default %s\n' \
+            '\t-f <tag,tag> - filter by comma separated list of tags to show (default: show all tags)\n' % (server, db_password, certfile, timescale, simulate_real_time, do_debug))
 	sys.exit(1)
 
 def getopts():
@@ -108,9 +110,10 @@ def getopts():
     global simulate_real_time
     global do_debug
     global moviefile
+    global taglist
 
 	# Check command line
-    optlist, list = getopt.getopt(sys.argv[1:], 'ho:p:c:t:dim:')
+    optlist, list = getopt.getopt(sys.argv[1:], 'ho:p:c:t:dim:f:')
     for opt in optlist:
         if opt[0] == '-h':
             usage(server, db_password, certfile, timescale, simulate_real_time, moviefile, do_debug)
@@ -128,8 +131,14 @@ def getopts():
             do_debug = True
         if opt[0] == '-m':
             moviefile = opt[1]
+        if opt[0] == '-f':
+            if ',' in opt[1]:
+                taglist = opt[1].split(',')
+            else:
+                taglist = []
+                taglist.append(opt[1])
 
-    return server, db_password, certfile, timescale, simulate_real_time, moviefile, do_debug
+    return server, db_password, certfile, timescale, simulate_real_time, moviefile, do_debug, taglist
 
 ############################################## MAIN AND HELPERS
 # Function to watch CTRL+C keyboard input
@@ -153,8 +162,23 @@ def animate(tag_array):
 	ganim.animate(moviefile)
 
 def add_tags_to_tagarray(body, ta):
-    ta.extend(body['data'])
-    #for entry in body['data']:
+    lst = []
+    
+    if not (taglist is None) and len(taglist) > 0:
+        include = False
+        for entry in body['data']:
+            for tag in taglist:
+                if entry['epc96'] == tag:
+                    include = True
+                    break
+                
+            if include:
+                lst.append(entry)
+    else:
+        lst = body['data']
+    
+    ta.extend(lst)
+    #for entry in lst:
         #print entry
         #ta.append(entry)         
 
